@@ -26,7 +26,7 @@ app.get('/ui/style.css', function (req, res) {
 function hash(input,salt)
 {
     var hash = crypto.pbkdf2Sync(input,salt, 10000, 512, 'sha512');
-    return ["pbkdf2",salt,10000,hash.toString()].join('$');
+    return ["pbkdf2",salt,10000,hash.toString('hex')].join('$');
 }
 
 app.get('/hash/:input', function (req,res) {
