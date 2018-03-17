@@ -4,6 +4,7 @@ var path = require('path');
 var Pool = require('pg').Pool;
 var crypto = require('crypto');
 var bodyParser = require('body-parser');
+var session = require('express-session');
 
 var config = {
     user: 'pmj642',
@@ -16,6 +17,10 @@ var config = {
 var app = express();
 app.use(morgan('combined'));
 app.use(bodyParser.json());
+app.use(session({
+    secret: 'someRandomValueSecret',
+    cookie: {maxAge: 1000 * 60 * 60 * 24 * 30}
+}));
 
 app.get('/', function (req, res) {
   res.sendFile(path.join(__dirname, 'ui', 'index.html'));
@@ -76,7 +81,12 @@ app.post('/login', function (req,res) {
                 var hashedPass = hash(password,salt);
                 
                 if(hashedPass === dbString)
+                {
+                    req.session.auth = {userId: resut.rows[0].id};
+                    
                     res.send('Credentials valid!');
+                    
+                }
                 else
                     res.status(403).send('username/password invalid!');                                         
                 
@@ -84,6 +94,14 @@ app.post('/login', function (req,res) {
         }
     });
 });
+
+app.get('check-session', function (req, res) {
+  if(req.session && req.session.auth && req.session.auth.userId)
+    res.send('logged in as: ' + req.session.auth.userId);
+else
+    res.send('not logged in!');
+});
+
 
 app.get('/ui/madi.png', function (req, res) {
   res.sendFile(path.join(__dirname, 'ui', 'madi.png'));
