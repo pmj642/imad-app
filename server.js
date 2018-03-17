@@ -52,6 +52,37 @@ app.post('/create-user', function (req,res) {
     });
 });
 
+
+app.post('/login', function (req,res) {
+    var username = req.body.username;
+    var password = req.body.password;
+    var salt = crypto.randomBytes(128).toString('hex');
+    var dbString = hash(password,salt);
+    
+    pool.query('select from "user" where username = $1', username, (err,result) => {
+        if(err) {
+            res.status(500).send(err.toString());
+        }
+        else {
+            
+            if(result.rows.length === 0)
+                res.status(403).send('username/password invalid!'); 
+            else
+            {
+                var dbString = result.rows[0].password;
+                var salt = dbString.split('$')[1];
+                var hashedPass = hash(password,salt);
+                
+                if(hashedPass === dbString)
+                    res.send('Credentials valid!');
+                else
+                    res.status(403).send('username/password invalid!');                                         
+                
+            }
+        }
+    });
+});
+
 app.get('/ui/madi.png', function (req, res) {
   res.sendFile(path.join(__dirname, 'ui', 'madi.png'));
 });
