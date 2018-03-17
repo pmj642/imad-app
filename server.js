@@ -101,6 +101,10 @@ else
     res.send('not logged in!');
 });
 
+app.get('/logout', function (req, res) {
+  delete req.session.auth;
+  res.send('logged out');
+});
 
 app.get('/ui/madi.png', function (req, res) {
   res.sendFile(path.join(__dirname, 'ui', 'madi.png'));
