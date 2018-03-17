@@ -82,7 +82,7 @@ app.post('/login', function (req,res) {
                 
                 if(hashedPass === dbString)
                 {
-                    req.session.auth = {userId: resut.rows[0].id};
+                    // req.session.auth = {userId: resut.rows[0].id};
                     res.send('Credentials valid!');
                     
                 }
